@@ -1,8 +1,14 @@
 
-fun getInput(): String? {
+fun getInput(): String {
 
-    print("$ ")
-    return readLine()
+    while (true) {
+        print("$ ")
+        val input = readLine()
+        if (input.isNullOrBlank()) {
+            continue
+        }
+        return input
+    }
 
 }
 
@@ -18,12 +24,12 @@ fun main(args: Array<String>) {
 
 
     while (true) {
-        val input = getInput()
-        if (input.isNullOrBlank()) {
-            continue
+        try {
+            val input = getInput()
+            println("> ${parser.parse(input)}")
+        } catch (e: RuntimeException) {
+            println(e.message ?: "Error: Invalid input")
         }
-        println("> ${parser.parse(input)}")
     }
-
 
 }

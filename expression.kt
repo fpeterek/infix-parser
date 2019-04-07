@@ -6,23 +6,27 @@ abstract class Expression {
     override fun toString(): String = "${getValue()}"
 }
 
-val varRegister = mutableMapOf<String, Int>()
+private object VariableRegister {
 
-fun getVariable(variable: String) =
-    varRegister[variable] ?:
-    throw RuntimeException("Undefined variable $variable")
+    private val varRegister = mutableMapOf<String, Int>()
 
-fun setVariable(variable: String, value: Int): Int {
-    varRegister[variable] = value
-    return value
+    fun getVariable(variable: String) =
+        varRegister[variable] ?: throw RuntimeException("Undefined variable $variable")
+
+    fun setVariable(variable: String, value: Int): Int {
+        varRegister[variable] = value
+        return value
+    }
+
 }
 
+
 class Number(private val value: Int) : Expression() {
-    override fun getValue(): Int = value
+    override fun getValue() = value
 }
 
 class Variable(private val value: String) : Expression() {
-    override fun getValue() = getVariable(value)
+    override fun getValue() = VariableRegister.getVariable(value)
     fun variable() = value
 }
 
@@ -33,11 +37,11 @@ open class Unary(protected val value: Expression) : Expression() {
 }
 
 class Negation(value: Expression) : Unary(value) {
-    override fun getValue(): Int = value.getValue() * -1
+    override fun getValue() = value.getValue() * -1
 }
 
 class Complement(value: Expression) : Unary(value) {
-    override fun getValue(): Int = value.getValue().inv()
+    override fun getValue() = value.getValue().inv()
 }
 
 fun unaryExpr(op: String, value: Expression) =
@@ -46,17 +50,6 @@ fun unaryExpr(op: String, value: Expression) =
         "~" -> Complement(value)
         else -> throw RuntimeException("Error: \"op\" is not a valid unary operator")
     }
-
-/*
-*
-* val binaryOperators = listOf(
-            "==", "!=", ">", ">=", "<", "<=",
-            "+", "-", "*", "/", "%", "**",
-            ">>", "<<", "^", "&", "|",
-            "="
-        )
-*
-* */
 
 fun binaryExpr(op: String, left: Expression, right: Expression) =
     when (op) {
@@ -116,49 +109,50 @@ class LessEqual(left: Expression, right: Expression) : Binary(left, right) {
 }
 
 class Addition(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() + right.getValue()
+    override fun getValue() = left.getValue() + right.getValue()
 }
 
 class Subtraction(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() - right.getValue()
+    override fun getValue() = left.getValue() - right.getValue()
 }
 
 class Multiplication(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() * right.getValue()
+    override fun getValue() = left.getValue() * right.getValue()
 }
 
 class Division(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() / right.getValue()
+    override fun getValue() = left.getValue() / right.getValue()
 }
 
 class Mod(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() % right.getValue()
+    override fun getValue() = left.getValue() % right.getValue()
 }
 
 class Power(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue().toDouble().pow(right.getValue()).toInt()
+    override fun getValue() = left.getValue().toDouble().pow(right.getValue()).toInt()
 }
 
 class LShift(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() shl right.getValue()
+    override fun getValue() = left.getValue() shl right.getValue()
 }
 
 class RShift(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() shr right.getValue()
+    override fun getValue() = left.getValue() shr right.getValue()
 }
 
 class Xor(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() xor right.getValue()
+    override fun getValue() = left.getValue() xor right.getValue()
 }
 
 class BitAnd(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() and right.getValue()
+    override fun getValue() = left.getValue() and right.getValue()
 }
 
 class BitOr(left: Expression, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = left.getValue() or right.getValue()
+    override fun getValue() = left.getValue() or right.getValue()
 }
 
 class Assignment(left: Variable, right: Expression) : Binary(left, right) {
-    override fun getValue(): Int = setVariable((left as Variable).variable(), right.getValue())
+    override fun getValue() =
+        VariableRegister.setVariable((left as Variable).variable(), right.getValue())
 }
